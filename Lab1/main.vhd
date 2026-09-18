@@ -44,6 +44,7 @@ begin
 			case digCode is				--used to rotate 7 seg digits
 		 		when "000" => digCode <= "001";
 				when "001" => digCode <= "000";
+				when others => digCode <= "000";
 			end case;
 		end if;
 	end process digit_select;

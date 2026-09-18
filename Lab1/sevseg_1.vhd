@@ -19,14 +19,14 @@ begin
             when "0010" => seg <= dot &"0100100" ;--& dot; 	--2
             when "0011" => seg <= dot &"0110000" ;--& dot; 	--3
             when "0100" => seg <= dot &"0011001" ;--& dot; 	--4
-            when "0101" => seg <= dot &"0001001" ;--& dot; 	--5
+            when "0101" => seg <= dot &"0010010" ;--& dot; 	--5
             when "0110" => seg <= dot &"0000010" ;--& dot; 	--6
             when "0111" => seg <= dot &"1111000" ;--& dot; 	--7
             when "1000" => seg <= dot &"0000000" ;--& dot;  --8 --CHANAGE
             when "1001" => seg <= dot &"0011000" ;--& dot; 	--9
             when "1010" => seg <= dot &"0001000" ;--& dot;	--A
             when "1011" => seg <= dot &"0000011" ;--& dot;	--b
-            when "1100" => seg <= dot &"1100110" ;--& dot;	--C
+            when "1100" => seg <= dot &"1000110" ;--& dot;	--C
             when "1101" => seg <= dot &"0100001" ;--& dot;	--d
             when "1110" => seg <= dot &"0000110" ;--& dot;	--E
             when "1111" => seg <= dot &"0001110" ;--& dot;	--F
