@@ -3,9 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity sevseg_dot is
     Port ( 
-        int : in STD_LOGIC_VECTOR (4 downto 1);--same input vector here
-        dot : in std_logic;		--as here when using component. 4-1 bits are character in hex, 0 bit is dot
-        seg : out STD_LOGIC_VECTOR (7 downto 0) -- 7-1 bits are cathodes, 0 bit is dot. -- 0 is dot on, 1 is dot off
+        int : in STD_LOGIC_VECTOR (4 downto 1);-- same input vector here
+        dot : in std_logic;		-- as here when using component. 4-1 bits are character in hex, 0 bit is dot
+        seg : out STD_LOGIC_VECTOR (7 downto 0) -- 6-0 bits are cathodes, 7th bit is dot. -- "0" is on, "1" is off
     );
 end sevseg_dot;
 
@@ -22,7 +22,7 @@ begin
             when "0101" => seg <= dot &"0010010" ;--& dot; 	--5
             when "0110" => seg <= dot &"0000010" ;--& dot; 	--6
             when "0111" => seg <= dot &"1111000" ;--& dot; 	--7
-            when "1000" => seg <= dot &"0000000" ;--& dot;  --8 --CHANAGE
+            when "1000" => seg <= dot &"0000000" ;--& dot;  --8
             when "1001" => seg <= dot &"0011000" ;--& dot; 	--9
             when "1010" => seg <= dot &"0001000" ;--& dot;	--A
             when "1011" => seg <= dot &"0000011" ;--& dot;	--b

@@ -2,16 +2,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
---	In-Datapath-Out: Switches for adder => 7seg Cathode Mux => 7seg endoder
-	
---	Control: clock divider => Anode Sequencer & 7seg Cathode Mux == match anode and cathode to same digit
 
 entity display_result is
     Port (
-        SW: in std_logic_vector(11 downto 0); -- use 3 switches as binary bits
+        SW: in std_logic_vector(11 downto 0); -- use 12 switches as binary bits
         DIG_SEL : in std_logic_vector(2 downto 0); -- number to select anode based on clock 
         ANODES : out std_logic_vector(7 downto 0); --7 seg ANODES
-        SEG_CATHODES : out std_logic_vector(7 downto 0) --7 seg Cathodes   order might be backward?
+        SEG_CATHODES : out std_logic_vector(7 downto 0) --7 seg Cathodes
 	);
 end display_result;
 
@@ -28,6 +25,7 @@ architecture Structural of display_result is
         );
     end component;
     
+    -- Seven segment display logic
     component sevseg_disp
         Port (
             VAL : in STD_LOGIC_VECTOR (5 downto 0);
