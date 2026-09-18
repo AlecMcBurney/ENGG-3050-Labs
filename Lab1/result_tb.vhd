@@ -39,10 +39,10 @@ architecture Behavioral of result_tb is
 
     component display_result
         Port ( 
-            SW: in std_logic_vector(11 downto 0); -- use 3 switches as binary bits
-            DIG_SEL : in std_logic_vector(2 downto 0); -- number to select anode based on clock 
-            ANODES : out std_logic_vector(7 downto 0); --7 seg ANODES
-            SEG_CATHODES : out std_logic_vector(7 downto 0) --7 seg Cathodes   order might be backward?
+            SW: in std_logic_vector(11 downto 0);
+            DIG_SEL : in std_logic_vector(2 downto 0); 
+            ANODES : out std_logic_vector(7 downto 0);
+            SEG_CATHODES : out std_logic_vector(7 downto 0)
         );
     end component;
     
