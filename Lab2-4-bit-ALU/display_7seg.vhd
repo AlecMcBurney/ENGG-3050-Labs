@@ -8,7 +8,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity sevseg_disp is
     Port ( 
-        VAL : in STD_LOGIC_VECTOR (5 downto 0); -- adder sum
+        VAL : in STD_LOGIC_VECTOR (3 downto 0); -- adder sum
         AN_SEL : in std_logic_vector(2 downto 0); -- numbered anode select (Selected via clock)
         AN : out std_logic_vector(7 downto 0); -- per bit which anode to turn on/off
         SEG : out STD_LOGIC_VECTOR (7 downto 0) -- 7-1 bits are cathodes, 0 bit is dot. 0 on, 1 off
@@ -23,30 +23,16 @@ architecture Behavioral of sevseg_disp is
 		    AN_o: out std_logic_vector(7 downto 0)); --8 bits to select the annode to display on 
 	end component;
 	
-	-- 7SEG CATHODE MUX 
-	component Mux2To1
-	Port (	
-            I_0 : in std_logic_vector(3 downto 0);
-			I_1 : in std_logic_vector(3 downto 0);
-			S : in  std_logic; --selection by clk div
-			Z : out  std_logic_vector(3 downto 0) --out
-        );
-	end component;
-	
 	--7 SEG ENCODER to display on 7 SEG
 	component sevseg_dot
 	Port (  
             int  : in std_logic_vector (4 downto 1);--same input vector here
 			dot : in std_logic;		--as here when using component. 4-1 bits are character in hex, 0 bit is dot
             seg : out std_logic_vector (7 downto 0)
-        );-- 7-1 bits are cathodes, 0 bit is dot. -- 0 is dot on, 1 is dot off	
+        );-- 6-0 bits are cathodes, 7 bit is dot. -- 0 is dot on, 1 is dot off
 	end component;
 	
-	signal digit_0, digit_1 : std_logic_vector(3 downto 0); --signals for the 7 seg
-	signal muxSegSig : std_logic_vector(3 downto 0); --what's displayed on 7seg anode
 begin
-    digit_0 <= VAL(3 downto 0);
-    digit_1 <= "00" &VAL(5 downto 4);
     
     --AnnodeDecoder/Select annode
 	AC: AnnodeDecoder 
@@ -54,19 +40,10 @@ begin
 	       X => AN_SEL, 
 	       AN_o => AN
        );
-    
-    -- Select result digit    
-	CathMux: Mux2to1 
-       port map(
-        I_0 => digit_0,
-        I_1 => digit_1,
-        S => AN_SEL(0),
-        Z => muxSegSig
-        );
-	
+	-- Cathode Decoder/ Select LEDs
 	CathCoder: sevseg_dot 
 	    port map (
-            int => muxSegSig(3 downto 0),
+            int => VAL,
             dot => '1',
             seg => SEG
 		);
