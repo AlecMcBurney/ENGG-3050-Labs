@@ -57,6 +57,12 @@ begin
         wait for 100 ns;
         check_result(S, "0000", "ADD case 2"); -- 15 + 1 = 0, carry = 1
 
+        -- Validate carry in connections
+        A <= "1111"; -- A = 15
+        B <= "1111"; -- B = 15
+        wait for 100 ns;
+        check_result(S, "1110", "ADD case 3"); -- 15 + 15 = 30(14 w/ carry = 1)
+
         -- 00, Cin = 1: A + not B + 1 (A - B)
         Op <= "001";
         A <= "1001"; -- A = 9
