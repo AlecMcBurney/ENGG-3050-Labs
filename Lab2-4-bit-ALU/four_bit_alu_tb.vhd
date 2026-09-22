@@ -8,16 +8,14 @@ architecture Behavioral of four_bit_alu_tb is
 component four_bit_alu is
     Port (
         A, B   : in  std_logic_vector(3 downto 0);
-        Op     : in  std_logic_vector(1 downto 0);
-        Cin    : in  std_logic;
+        Op     : in  std_logic_vector(2 downto 0);
         Carry  : out std_logic;
         Res    : out std_logic_vector(3 downto 0)
    );
 end component;
 
 signal A, B : std_logic_vector(3 downto 0);
-signal Op   : std_logic_vector(1 downto 0);
-signal Cin  : std_logic;
+signal Op   : std_logic_vector(2 downto 0);
 signal Cout   : std_logic;
 signal S    : std_logic_vector(3 downto 0);
 
@@ -41,7 +39,6 @@ begin
         A => A, 
         B => B,
         Op => Op,
-        Cin => Cin,
         Carry => Cout,
         Res => S
     );
@@ -49,7 +46,7 @@ begin
     test_bench: process
     begin
         -- 00, Cin = 0: A + B
-        Op <= "00"; Cin <= '0'; 
+        Op <= "000"; 
         A <= "0011"; -- A = 3
         B <= "0101"; -- B = 5
         wait for 100 ns;
@@ -61,7 +58,7 @@ begin
         check_result(S, "0000", "ADD case 2"); -- 15 + 1 = 0, carry = 1
 
         -- 00, Cin = 1: A + not B + 1 (A - B)
-        Op <= "00"; Cin <= '1'; 
+        Op <= "001";
         A <= "1001"; -- A = 9
         B <= "0011"; -- B = 3
         wait for 100 ns;
@@ -73,7 +70,7 @@ begin
         check_result(S, "1101", "A-B case 2"); -- 2 - 5 = -3 = 13
 
         -- 01, Cin = 0: not A + B
-        Op <= "01"; Cin <= '0'; 
+        Op <= "010";
         A <= "0011"; -- A = 3
         B <= "0101"; -- B = 5
         wait for 100 ns;
@@ -85,7 +82,7 @@ begin
         check_result(S, "1000", "not-A+B case 2"); -- not 9 + 2 = 8
 
         -- 01, Cin = 1: not A + B + 1 (B - A)
-        Op <= "01"; Cin <= '1'; 
+        Op <= "011";
         A <= "0011"; -- A = 3
         B <= "0101"; -- B = 5
         wait for 100 ns;
@@ -97,7 +94,7 @@ begin
         check_result(S, "1001", "B-A case 2"); -- 2 - 9 = -7 = 9
 
         -- 10, Cin = 0: A - 1
-        Op <= "10"; Cin <= '0'; 
+        Op <= "100";
         A <= "0000"; -- A = 0
         B <= "0000"; -- B = 0, unused
         wait for 100 ns;
@@ -108,7 +105,7 @@ begin
         check_result(S, "0110", "DECREMENT case 2"); -- 7 - 1 = 6
 
         -- 10, Cin = 1: A + 1
-        Op <= "10"; Cin <= '1'; 
+        Op <= "101";
         A <= "1111"; -- A = 15
         B <= "0000"; -- B = 0, unused
         wait for 100 ns;
@@ -119,7 +116,7 @@ begin
         check_result(S, "0101", "INCREMENT case 2"); -- 4 + 1 = 5
 
         -- 11, Cin = 0: not A
-        Op <= "11"; Cin <= '0'; 
+        Op <= "110";
         A <= "0000"; -- A = 0
         B <= "0000"; -- B = 0, unused
         wait for 100 ns;
@@ -130,7 +127,7 @@ begin
         check_result(S, "0101", "1s COMPLEMENT case 2"); -- not 10 = 5
 
         -- 11, Cin = 1: not A + 1 (2s complement)
-        Op <= "11"; Cin <= '1'; 
+        Op <= "111";
         A <= "0000"; -- A = 0
         B <= "0000"; -- B = 0, unused
         wait for 100 ns;
