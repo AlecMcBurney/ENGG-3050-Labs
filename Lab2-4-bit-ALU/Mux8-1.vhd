@@ -1,14 +1,14 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity Mux8To1_8bit is
-    Port (	I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : in std_logic_vector(7 downto 0);
+entity Mux8To1_4bit is
+    Port (	I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : in std_logic_vector(3 downto 0);
 			S : in  std_logic_vector(2 downto 0);
-			Z : out  std_logic_vector(7 downto 0)
-			);  
-end Mux8To1_8bit;
+			Z : out  std_logic_vector(3 downto 0)
+			);
+end Mux8To1_4bit;
 
-architecture Behavioral of Mux8To1_8bit is
+architecture Behavioral of Mux8To1_4bit is
 
 begin
 	process(S, I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7)
