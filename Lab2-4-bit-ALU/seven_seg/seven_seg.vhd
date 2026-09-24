@@ -7,7 +7,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity sevseg_disp is
-    Port ( 
+    Port (
         I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : in std_logic_vector(3 downto 0);
         DOT : in std_logic;
         AN_SEL : in std_logic_vector(2 downto 0); -- numbered anode select (Selected via clock)
@@ -46,19 +46,19 @@ begin
 	AC: AnnodeDecoder
 	   port map(
 	       X => AN_SEL, 
-	       AN_o => ANODES
+	       AN_o => AN
        	);
     -- Cathode Mux
 	Cathode_mux: Mux8To1_4bit
 		port map(
-			I_0 => res,
-            I_1 => sw_to_b,
-            I_2 => sw_to_a,
-            I_3 => "",
-            I_4 => "",
-            I_5 => "",
-            I_6 => "000" & sw_to_cin,
-            I_7 => "00" & sw_to_s,
+			I_0 => I_0,
+            I_1 => I_1,
+            I_2 => I_2,
+            I_3 => I_3,
+            I_4 => I_4,
+            I_5 => I_5,
+            I_6 => I_6,
+            I_7 => I_7,
 			S => AN_SEL,
 			Z => VAL
 		);
@@ -67,6 +67,6 @@ begin
 	    port map (
             int => VAL,
             dot => '1',
-            seg => SEG_CATHODES
+            seg => SEG
 		);
 end Behavioral;

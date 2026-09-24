@@ -26,10 +26,12 @@ architecture Structural of main is
 
     -- 4-bit ALU
     component four_bit_alu
+        generic(
+            data_width : integer := 4
+        );
         Port ( 
             A, B   : in  std_logic_vector(3 downto 0);
-            Op     : in  std_logic_vector(1 downto 0);
-            Cin    : in std_logic;
+			Op     : in  std_logic_vector(2 downto 0);
             Carry  : out std_logic;
             Res : out std_logic_vector(3 downto 0)
         );
@@ -83,25 +85,28 @@ begin
 	sw_to_b <= SW(3 downto 0);
 	sw_to_cin <= SW(8);
 	sw_to_s <= SW(10 downto 9);
-	sw_to_op <= sw_to_s & sw_to_cin;
+	sw_to_op <= SW(10 downto 8);
 	
 	alu: four_bit_alu
+	    generic map(
+            data_width => 4
+        )
 	    port map(
             A => sw_to_a,
             B => sw_to_b,
             Op => sw_to_op,
             Carry => carry,
-            Sum => res
+            Res => res
         );
 
 	seven_seg: sevseg_disp
 	    port map(
 			I_0 => res,
-			I_1 => sw_to_b,
-			I_2 => sw_to_a,
-			I_3 => "",
-			I_4 => "",
-			I_5 => "",
+			I_1 => "0000",
+			I_2 => "0000",
+			I_3 => "0000",
+			I_4 => sw_to_b,
+			I_5 => sw_to_a,
 			I_6 => "000" & sw_to_cin,
 			I_7 => "00" & sw_to_s,
 			DOT => carry,
