@@ -22,7 +22,7 @@ begin
 			when "101" => Z <= I_5;
 			when "110" => Z <= I_6;
 			when "111" => Z <= I_7;
-			when others => Z <= "0";
+			when others => Z <= "00000";
         end case;
 	end process;
 end Behavioral;

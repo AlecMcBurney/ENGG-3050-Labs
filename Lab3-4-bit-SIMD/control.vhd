@@ -51,8 +51,8 @@ architecture Structural of main_control is
     signal clkdiv : std_logic_vector(10 downto 0); -- CLOCK 
     signal an_sel : std_logic_vector (2 downto 0); --signal from clock division for anode and cathode selection
 	-- Signals for 4-bit ALU
-    signal res, in_a, in_b : array(NUM_PU - 1 downto 0) of std_logic_vector(3 downto 0); -- ALU inputs and outputs
-	signal carry : array(NUM_PU - 1 downto 0) of std_logic; -- ALU carry out
+--    signal res, in_a, in_b : array(NUM_PU - 1 downto 0) of std_logic_vector(3 downto 0); -- ALU inputs and outputs
+--	signal carry : array(NUM_PU - 1 downto 0) of std_logic; -- ALU carry out
 	-- Operation Signals
 	signal sw_to_cin : std_logic;
 	signal sw_to_op : std_logic_vector(2 downto 0);
