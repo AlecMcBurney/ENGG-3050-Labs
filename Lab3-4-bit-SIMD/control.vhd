@@ -23,6 +23,17 @@ architecture Structural of main_control is
 
     -- 4-bit SIMD module (2 ALUs)
     
+	--Memory
+	component simd_mem
+		generic ( DATA_W : integer := 4; DEPTH : integer := 10; ADDR_W : integer := 4 );
+		port (
+			clk  : in  std_logic;
+			addr : in  std_logic_vector(ADDR_W-1 downto 0);
+			a0, b0, a1, b1 : out std_logic_vector(DATA_W-1 downto 0)
+		);
+	end component
+
+
 
     -- Seven segment display logic
     component sevseg_disp
@@ -49,6 +60,11 @@ architecture Structural of main_control is
 	signal sw_to_cin : std_logic;
 	signal sw_to_op : std_logic_vector(2 downto 0);
 	signal sw_to_op_doorbell : std_logic;
+
+	--Memory Signals
+	constant LAST_ADDR : integer := 9;                 -- 10 values per memory (0..9)
+	signal addr : std_logic_vector(3 downto 0) := (others => '0');
+	signal mem_a, mem_b : vector_arr;
 	
 	-- 7seg inputs
 	signal I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : std_logic_vector(4 downto 0);
@@ -102,6 +118,14 @@ begin
             );
 		end if;
 	end process pending_instruction;
+
+	--Memory
+	memories: simd_mem
+		generic map ( DATA_W => DATA_WIDTH, ADDR_W => 4 )
+		port map ( clk => CLK100MHZ, addr => addr,
+		           a0 => mem_a(0), b0 => mem_b(0),
+		           a1 => mem_a(1), b1 => mem_b(1) );
+
 	
 	-- Pad inputs with 0 to turn dots off
 	I_0 <= "00000";
