@@ -73,7 +73,7 @@ architecture Structural of main_control is
 	-- Operation Signals
 	signal sw_to_cin : std_logic;
 	signal sw_to_op : std_logic_vector(2 downto 0);
-	signal sw_to_op_req : std_logic;
+	signal sw_to_op_req, prev_val : std_logic;
 
 	--Memory Signals
 	constant LAST_ADDR : integer := 9;                 -- 10 values per memory (0..9)
@@ -84,6 +84,10 @@ architecture Structural of main_control is
 	signal I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : std_logic_vector(4 downto 0);
 
 begin
+	sw_to_op_req <= SW(0);
+	sw_to_cin <= SW(1);
+	sw_to_op <= SW(3 downto 1);
+
 	clock_divider: process (CLK100MHz)		-- create system clock divder
 	begin
 		if (rising_edge(CLK100MHz)) then
@@ -108,9 +112,19 @@ begin
 		end if;
 	end process digit_select;
 
-	sw_to_op_req <= SW(0);
-	sw_to_cin <= SW(1);
-	sw_to_op <= SW(3 downto 1);
+	pending_instruction: process (CLK100MHz)
+	begin
+		if (rising_edge(CLK100MHz)) then
+			prev_val <= sw_to_op_req;
+			if prev_val /= sw_to_op_req then
+				if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
+					addr <= (others => '0');
+				else
+					addr <= std_logic_vector(unsigned(addr) + 1);
+				end if;
+			end if;
+		end if;
+	end process pending_instruction;
 	
 	memories: simd_mem
         generic map( 
@@ -139,18 +153,6 @@ begin
 			Res1   => res(1),
 			Carry1 => carry(1)
 		);
-
-	pending_instruction: process (sw_to_op_req)
-	begin
-		if rising_edge(sw_to_op_req) then
-			if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
-				addr <= (others => '0');
-			else
-				addr <= std_logic_vector(unsigned(addr) + 1);
-			end if;
-		end if;
-	end process pending_instruction;
-
 	
 	-- Pad inputs with 0 to turn dots off
 	I_0 <= "00000";
