@@ -1,7 +1,5 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use IEEE.NUMERIC_STD.ALL;
 --	In-Datapath-Out:
 
@@ -23,12 +21,27 @@ architecture Structural of main_control is
 	--Component Declarations:
 
     -- 4-bit SIMD module (2 ALUs)
+	component alu_multiple
+		generic (
+			data_width : integer := 4
+		);
+		Port (
+			A0 : in std_logic_vector(data_width-1 downto 0);
+			B0 : in std_logic_vector(data_width-1 downto 0);
+			A1 : in std_logic_vector(data_width-1 downto 0);
+			B1 : in std_logic_vector(data_width-1 downto 0);
+			Op : in std_logic_vector(2 downto 0);
+			Res0   : out std_logic_vector(data_width-1 downto 0);
+			Carry0 : out std_logic;
+			Res1   : out std_logic_vector(data_width-1 downto 0);
+			Carry1 : out std_logic
+		);
+	end component;
     
 	--Memory
 	component simd_mem
 		generic ( DATA_W : integer := 4; DEPTH : integer := 10; ADDR_W : integer := 4 );
 		port (
-			clk  : in  std_logic;
 			addr : in  std_logic_vector(ADDR_W-1 downto 0);
 			a0, b0, a1, b1 : out std_logic_vector(DATA_W-1 downto 0)
 		);
@@ -54,7 +67,7 @@ architecture Structural of main_control is
     signal an_sel : std_logic_vector (2 downto 0); --signal from clock division for anode and cathode selection
 	
 	-- Signals for 4-bit ALU
-   	signal res, in_a, in_b : vector_arr; -- ALU inputs and outputs
+   	signal res : vector_arr; -- ALU outputs
 	signal carry : logic_arr; -- ALU carry out
 	
 	-- Operation Signals
@@ -74,7 +87,7 @@ begin
 	clock_divider: process (CLK100MHz)		-- create system clock divder
 	begin
 		if (rising_edge(CLK100MHz)) then
-			clkdiv <= clkdiv+1;
+			clkdiv <= std_logic_vector(unsigned(clkdiv) + 1);
 		end if;
 	end process clock_divider;
 	
@@ -105,22 +118,32 @@ begin
             ADDR_W => 4
         )
         port map( 
-            clk => CLK100MHZ, 
             addr => addr,
             a0 => mem_a(0), 
             b0 => mem_b(0),
             a1 => mem_a(1), 
             b1 => mem_b(1) 
         );
+	simd: alu_multiple
+		generic map(
+			data_width => DATA_WIDTH
+		)
+		port map(
+			A0 => mem_a(0),
+			B0 => mem_b(0),
+			A1 => mem_a(1),
+			B1 => mem_b(1),
+			Op => sw_to_op,
+			Res0   => res(0),
+			Carry0 => carry(0),
+			Res1   => res(1),
+			Carry1 => carry(1)
+		);
 
 	pending_instruction: process (sw_to_op_req)
 	begin
-		if (rising_edge(sw_to_op_req)) then
-
-		end if;
-		-- Increment read pointer post-op
-		if (falling_edge(sw_to_op_req)) then
-			if addr > std_logic_vector(to_unsigned(LAST_ADDR, 4)) then
+		if rising_edge(sw_to_op_req) then
+			if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
 				addr <= (others => '0');
 			else
 				addr <= std_logic_vector(unsigned(addr) + 1);
@@ -132,12 +155,12 @@ begin
 	-- Pad inputs with 0 to turn dots off
 	I_0 <= "00000";
 	I_1 <= res(1) & carry(1);
-	I_2 <= in_b(1) & '0';
-	I_3 <= in_a(1) & '0';
+	I_2 <= mem_b(1) & '0';
+	I_3 <= mem_a(1) & '0';
 	I_4 <= "00000";
 	I_5 <= res(0) & carry(0);
-	I_6 <= in_b(0) & '0';
-	I_7 <= in_a(0) & '0';
+	I_6 <= mem_b(0) & '0';
+	I_7 <= mem_a(0) & '0';
 	seven_seg: sevseg_disp
 	    port map(
 			I_0 => I_0,
