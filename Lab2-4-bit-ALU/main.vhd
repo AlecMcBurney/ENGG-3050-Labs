@@ -80,7 +80,7 @@ begin
 			end case;
 		end if;
 	end process digit_select;
-
+	
 	sw_to_a <= SW(7 downto 4);
 	sw_to_b <= SW(3 downto 0);
 	sw_to_cin <= SW(8);

@@ -2,6 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 --	In-Datapath-Out:
 
 entity main_control is
@@ -31,7 +32,7 @@ architecture Structural of main_control is
 			addr : in  std_logic_vector(ADDR_W-1 downto 0);
 			a0, b0, a1, b1 : out std_logic_vector(DATA_W-1 downto 0)
 		);
-	end component
+	end component;
 
 
 
@@ -59,7 +60,7 @@ architecture Structural of main_control is
 	-- Operation Signals
 	signal sw_to_cin : std_logic;
 	signal sw_to_op : std_logic_vector(2 downto 0);
-	signal sw_to_op_doorbell : std_logic;
+	signal sw_to_op_req : std_logic;
 
 	--Memory Signals
 	constant LAST_ADDR : integer := 9;                 -- 10 values per memory (0..9)
@@ -80,7 +81,8 @@ begin
 	digit_select: process (clkdiv(10))
 	begin
 		if (rising_edge(clkdiv(10))) then
-			case an_sel is				--used to rotate 7 seg digits
+			-- used to rotate 7 seg digits
+			case an_sel is				
 		 		when "000" => an_sel <= "001";
 				when "001" => an_sel <= "010";
 				when "010" => an_sel <= "011";
@@ -93,38 +95,38 @@ begin
 		end if;
 	end process digit_select;
 
-	sw_to_op_doorbell <= SW(0);
+	sw_to_op_req <= SW(0);
 	sw_to_cin <= SW(1);
 	sw_to_op <= SW(3 downto 1);
+	
+	memories: simd_mem
+        generic map( 
+            DATA_W => DATA_WIDTH, 
+            ADDR_W => 4
+        )
+        port map( 
+            clk => CLK100MHZ, 
+            addr => addr,
+            a0 => mem_a(0), 
+            b0 => mem_b(0),
+            a1 => mem_a(1), 
+            b1 => mem_b(1) 
+        );
 
-	pending_instruction: process (sw_to_op_doorbell)
+	pending_instruction: process (sw_to_op_req)
 	begin
-		if (rising_edge(sw_to_op_doorbell)) then
-			in_b <= (
-                "0000",
-                "0000"
-            );
-            in_a <= (
-                "0000",
-                "0000"
-            );
-            res <= (
-                "0000",
-                "0000"
-            );
-            carry <= (
-                '0',
-                '0'
-            );
+		if (rising_edge(sw_to_op_req)) then
+
+		end if;
+		-- Increment read pointer post-op
+		if (falling_edge(sw_to_op_req)) then
+			if addr > std_logic_vector(to_unsigned(LAST_ADDR, 4)) then
+				addr <= (others => '0');
+			else
+				addr <= std_logic_vector(unsigned(addr) + 1);
+			end if;
 		end if;
 	end process pending_instruction;
-
-	--Memory
-	memories: simd_mem
-		generic map ( DATA_W => DATA_WIDTH, ADDR_W => 4 )
-		port map ( clk => CLK100MHZ, addr => addr,
-		           a0 => mem_a(0), b0 => mem_b(0),
-		           a1 => mem_a(1), b1 => mem_b(1) );
 
 	
 	-- Pad inputs with 0 to turn dots off
