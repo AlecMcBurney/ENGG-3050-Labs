@@ -13,27 +13,19 @@ architecture Behavioral of simd_mem_tb is
             ADDR_W : integer := 4
         );
         Port ( 
-            clk  : in  STD_LOGIC; 
-            addr : in  STD_LOGIC_VECTOR(ADDR_W-1 downto 0); 
-            a0   : out STD_LOGIC_VECTOR(DATA_W-1 downto 0); 
-            a1   : out STD_LOGIC_VECTOR(DATA_W-1 downto 0); 
-            b0   : out STD_LOGIC_VECTOR(DATA_W-1 downto 0); 
-            b1   : out STD_LOGIC_VECTOR(DATA_W-1 downto 0) 
+            addr0, addr1 : in  STD_LOGIC_VECTOR(3 downto 0); 
+            a0, a1, b0, b1   : out STD_LOGIC_VECTOR(3 downto 0) 
         ); 
     end component; 
 
-    signal clk  : STD_LOGIC := '0';
-    signal addr : STD_LOGIC_VECTOR(3 downto 0) := "0000"; 
-    signal a0   : STD_LOGIC_VECTOR(3 downto 0); 
-    signal a1   : STD_LOGIC_VECTOR(3 downto 0); 
-    signal b0   : STD_LOGIC_VECTOR(3 downto 0); 
-    signal b1   : STD_LOGIC_VECTOR(3 downto 0); 
+    signal addr0, addr1 : STD_LOGIC_VECTOR(3 downto 0) := "0000";
+    signal a0,a1,b0,b1   : STD_LOGIC_VECTOR(3 downto 0); 
 
 begin 
     uut: simd_mem 
         port map ( 
-            clk  => clk, 
-            addr => addr, 
+            addr0 => addr0, 
+            addr1 => addr1, 
             a0   => a0, 
             a1   => a1, 
             b0   => b0, 
@@ -45,7 +37,8 @@ begin
     begin 
         -- Sweep through addresses 0 to 9 to verify memory output
         for i in 0 to 9 loop
-            addr <= std_logic_vector(to_unsigned(i, 4)); 
+            addr0 <= std_logic_vector(to_unsigned(i, 4)); 
+            addr1 <= std_logic_vector(to_unsigned(i, 4)); 
             wait for 10 ns; 
         end loop;
 
