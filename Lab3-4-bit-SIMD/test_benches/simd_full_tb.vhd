@@ -13,7 +13,8 @@ component simd_module is
     
     Port (
         OP   : in std_logic_vector(2 downto 0);
-        ADDR : in std_logic_vector(3 downto 0);
+        ADDR0 : in std_logic_vector(3 downto 0); -- Memory address0
+        ADDR1 : in std_logic_vector(3 downto 0); -- Memory address1
 
         A0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
         B0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -28,7 +29,7 @@ end component;
 
 signal A0, B0, A1, B1 : std_logic_vector(3 downto 0);
 signal Op   : std_logic_vector(2 downto 0);
-signal ADDR : std_logic_vector(3 downto 0);
+signal ADDR0 : std_logic_vector(3 downto 0);
 signal C0, C1   : std_logic;
 signal Res0, Res1    : std_logic_vector(3 downto 0);
 
@@ -56,7 +57,8 @@ begin
         
         port map(
             OP => OP,
-            ADDR => ADDR,
+            ADDR0 => ADDR0,
+            ADDR1 => ADDR0,
 
             A0 => A0,
             B0 => B0,
@@ -64,15 +66,15 @@ begin
             B1 => B1,
 
             Res0 => Res0,
-            Carry0 => Carry0,
+            Carry0 => C0,
 
             Res1 => Res1,
-            Carry1 => Carry1
+            Carry1 => C1
         );
 
     test_bench: process
     begin
-       ADDR <= "0000"; -- A0 = 0001, B0 = 0000, A1 = 1010, B1 = 0001
+       ADDR0 <= "0000"; -- A0 = 0001, B0 = 0000, A1 = 1010, B1 = 0001
        
        -- 000: A + B
        OP <= "000";
@@ -112,7 +114,7 @@ begin
         OP <= "111";
         wait for 100 ns;
 
-        ADDR <= "0001"; -- A0 = 0001, B0 = 0000, A1 = 1010, B1 = 0001
+        ADDR0 <= "0001"; -- A0 = 0001, B0 = 0000, A1 = 1010, B1 = 0001
 
         -- A + B
         OP <= "000";
@@ -122,7 +124,7 @@ begin
         OP <= "001";
         wait for 100 ns;
 
-        ADDR <= "0010"; -- A0 = 0010, B0 = 0010, A1 = 1001, B1 = 0011
+        ADDR0 <= "0010"; -- A0 = 0010, B0 = 0010, A1 = 1001, B1 = 0011
 
         -- A + B
         OP <= "000";
@@ -132,46 +134,46 @@ begin
         OP <= "011";
         wait for 100 ns;
 
-        ADDR <= "0011"; -- A0 = 0011, B0 = 0100, A1 = 1000, B1 = 0101
+        ADDR0 <= "0011"; -- A0 = 0011, B0 = 0100, A1 = 1000, B1 = 0101
 
         -- Increment
         OP <= "101";
         wait for 100 ns;
 
-        ADDR <= "0100"; -- A0 = 0100, B0 = 0110, A1 = 0111, B1 = 0111
+        ADDR0 <= "0100"; -- A0 = 0100, B0 = 0110, A1 = 0111, B1 = 0111
 
         -- Decrement
         OP <= "100";
         wait for 100 ns;
 
-        ADDR <= "0101"; -- A0 = 0101, B0 = 1000, A1 = 0110, B1 = 1001
+        ADDR0 <= "0101"; -- A0 = 0101, B0 = 1000, A1 = 0110, B1 = 1001
 
         -- 1's complement
         OP <= "110";
         wait for 100 ns;
 
-        ADDR <= "0110"; -- A0 = 0110, B0 = 1010, A1 = 0101, B1 = 1011
+        ADDR0 <= "0110"; -- A0 = 0110, B0 = 1010, A1 = 0101, B1 = 1011
 
         -- 2's complement
         OP <= "111";
         wait for 100 ns;
 
-        ADDR <= "0111"; -- A0 = 0111, B0 = 1100, A1 = 0100, B1 = 1101
+        ADDR0 <= "0111"; -- A0 = 0111, B0 = 1100, A1 = 0100, B1 = 1101
 
         OP <= "000";
         wait for 100 ns;
 
-        ADDR <= "1000"; -- A0 = 1000, B0 = 1110, A1 = 0011, B1 = 0000
+        ADDR0 <= "1000"; -- A0 = 1000, B0 = 1110, A1 = 0011, B1 = 0000
 
         OP <= "000";
         wait for 100 ns;
 
-        ADDR <= "1001"; -- A0 = 1001, B0 = 1111, A1 = 0010, B1 = 0001
+        ADDR0 <= "1001"; -- A0 = 1001, B0 = 1111, A1 = 0010, B1 = 0001
 
         OP <= "000";
         wait for 100 ns;
 
-        ADDR <= "1010"; -- A0 = 1010, B0 = 1101, A1 = 0001, B1 = 0011
+        ADDR0 <= "1010"; -- A0 = 1010, B0 = 1101, A1 = 0001, B1 = 0011
 
         OP <= "000";
         wait for 100 ns;

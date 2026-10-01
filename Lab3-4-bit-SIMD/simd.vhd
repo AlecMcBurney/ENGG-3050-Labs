@@ -10,7 +10,8 @@ entity simd_module is
 	);
     Port (	
 		OP : in std_logic_vector(2 downto 0); -- ALU operation
-        ADDR : in std_logic_vector(3 downto 0); -- Memory address
+        ADDR0 : in std_logic_vector(3 downto 0); -- Memory address0
+        ADDR1 : in std_logic_vector(3 downto 0); -- Memory address1
         
         A0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
         B0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -49,7 +50,7 @@ architecture Structural of simd_module is
 	component simd_mem
 		generic ( DATA_W : integer := 4; DEPTH : integer := 10; ADDR_W : integer := 4 );
 		port (
-			addr : in  std_logic_vector(ADDR_W-1 downto 0);
+			addr0, addr1 : in  std_logic_vector(ADDR_W-1 downto 0);
 			a0, b0, a1, b1 : out std_logic_vector(DATA_W-1 downto 0)
 		);
 	end component;
@@ -74,7 +75,8 @@ begin
             ADDR_W => 4
         )
         port map( 
-            addr => addr,
+            addr0 => ADDR0,
+            addr1 => ADDR1,
             a0 => mem_a(0), 
             b0 => mem_b(0),
             a1 => mem_a(1), 

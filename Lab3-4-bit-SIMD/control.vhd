@@ -10,7 +10,7 @@ entity main_control is
 	);
     Port (	
 		CLK100MHZ: in std_logic;
-		SW: in std_logic_vector(3 downto 0); -- 3-2 => Op, 1 => Cin, 0 => Perform Op
+		SW: in std_logic_vector(10 downto 0); -- 10-7 addr0, 6-3 addr1, 2-0 => Op, 0 => Cin
 		ANODES : out std_logic_vector(7 downto 0); -- 7 seg ANODES
 		SEG_CATHODES : out std_logic_vector(7 downto 0) -- 7 seg Cathodes
 	);
@@ -28,12 +28,11 @@ architecture Structural of main_control is
 		);
 		Port (
 			OP : in std_logic_vector(2 downto 0); -- ALU operation
-			ADDR : in std_logic_vector(3 downto 0); -- Memory address
-			
+			ADDR0, ADDR1 : in std_logic_vector(3 downto 0); -- Memory address
 			A0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
-			B0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
-			A1 : out std_logic_vector(DATA_WIDTH-1 downto 0);
-			B1 : out std_logic_vector(DATA_WIDTH-1 downto 0);
+            B0 : out std_logic_vector(DATA_WIDTH-1 downto 0);
+            A1 : out std_logic_vector(DATA_WIDTH-1 downto 0);
+            B1 : out std_logic_vector(DATA_WIDTH-1 downto 0);
 			Res0   : out std_logic_vector(DATA_WIDTH-1 downto 0);
 			Carry0 : out std_logic;
 			Res1   : out std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -65,20 +64,21 @@ architecture Structural of main_control is
 	-- Operation Signals
 	signal sw_to_cin : std_logic;
 	signal sw_to_op : std_logic_vector(2 downto 0);
-	signal sw_to_op_req, prev_val : std_logic;
+	signal sw_to_addr0, sw_to_addr1 : std_logic_vector(3 downto 0);
 
 	--Memory Signals
 	constant LAST_ADDR : integer := 9;                 -- 10 values per memory (0..9)
-	signal addr : std_logic_vector(3 downto 0) := (others => '0');
 	signal mem_a, mem_b : vector_arr;
 	
 	-- 7seg inputs
 	signal I_0, I_1, I_2, I_3, I_4, I_5, I_6, I_7 : std_logic_vector(4 downto 0);
 
 begin
-	sw_to_op_req <= SW(0);
-	sw_to_cin <= SW(1);
-	sw_to_op <= SW(3 downto 1);
+	-- sw_to_op_req <= SW(0);
+	sw_to_cin <= SW(0);
+	sw_to_op <= SW(2 downto 0);
+	sw_to_addr0 <= SW(10 downto 7);
+	sw_to_addr1 <= SW(6 downto 3);
 
 	clock_divider: process (CLK100MHz)		-- create system clock divder
 	begin
@@ -105,19 +105,19 @@ begin
 		end if;
 	end process digit_select;
 
-	pending_instruction: process (CLK100MHz)
-	begin
-		if (rising_edge(CLK100MHz)) then
-			prev_val <= sw_to_op_req;
-			if prev_val /= sw_to_op_req then
-				if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
-					addr <= (others => '0');
-				else
-					addr <= std_logic_vector(unsigned(addr) + 1);
-				end if;
-			end if;
-		end if;
-	end process pending_instruction;
+	-- pending_instruction: process (CLK100MHz)
+	-- begin
+	-- 	if (rising_edge(CLK100MHz)) then
+	-- 		prev_val <= sw_to_op_req;
+	-- 		if prev_val /= sw_to_op_req then
+	-- 			if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
+	-- 				addr <= (others => '0');
+	-- 			else
+	-- 				addr <= std_logic_vector(unsigned(addr) + 1);
+	-- 			end if;
+	-- 		end if;
+	-- 	end if;
+	-- end process pending_instruction;
 	
 	simd: simd_module
 		generic map(
@@ -126,12 +126,12 @@ begin
 		)
 		Port map(
 			OP => sw_to_op,
-			ADDR => addr,
-			
+			ADDR0 => sw_to_addr0,
+			ADDR1 => sw_to_addr1,
 			A0 => mem_a(0),
-			B0 => mem_b(0),
-			A1 => mem_a(1),
-			B1 => mem_b(1),
+            B0 => mem_b(0),
+            A1 => mem_a(1),
+            B1 => mem_b(1),
 			Res0   => res(0),
 			Carry0 => carry(0),
 			Res1   => res(1),
