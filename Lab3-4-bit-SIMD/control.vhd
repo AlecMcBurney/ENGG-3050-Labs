@@ -104,20 +104,6 @@ begin
 			end case;
 		end if;
 	end process digit_select;
-
-	-- pending_instruction: process (CLK100MHz)
-	-- begin
-	-- 	if (rising_edge(CLK100MHz)) then
-	-- 		prev_val <= sw_to_op_req;
-	-- 		if prev_val /= sw_to_op_req then
-	-- 			if unsigned(addr) > to_unsigned(LAST_ADDR, addr'length) then
-	-- 				addr <= (others => '0');
-	-- 			else
-	-- 				addr <= std_logic_vector(unsigned(addr) + 1);
-	-- 			end if;
-	-- 		end if;
-	-- 	end if;
-	-- end process pending_instruction;
 	
 	simd: simd_module
 		generic map(
@@ -140,11 +126,11 @@ begin
 	
 	-- Pad inputs with 0 to turn dots off
 	I_0 <= "00001";
-	I_1 <= res(1) & carry(1);
+	I_1 <= res(1) & not carry(1);
 	I_2 <= mem_b(1) & '1';
 	I_3 <= mem_a(1) & '1';
 	I_4 <= "00001";
-	I_5 <= res(0) & carry(0);
+	I_5 <= res(0) & not carry(0);
 	I_6 <= mem_b(0) & '1';
 	I_7 <= mem_a(0) & '1';
 	seven_seg: sevseg_disp
