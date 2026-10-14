@@ -13,7 +13,6 @@ architecture Behavioral of result_tb is
         );
         Port(
             clk  : in  std_logic;
-            rst  : in  std_logic;
             A    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
             Bin  : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
             cIn  : in  std_logic;
@@ -24,7 +23,6 @@ architecture Behavioral of result_tb is
 
     -- Testbench signals
     signal clk_test   : std_logic := '0';
-    signal rst_test   : std_logic := '0';
     signal A_test     : std_logic_vector(63 downto 0) := (others => '0');
     signal B_test     : std_logic_vector(63 downto 0) := (others => '0');
     signal cIn_test   : std_logic := '0';
@@ -40,7 +38,6 @@ begin
     uut: carry_select_16bit
         port map(
             clk  => clk_test,
-            rst  => rst_test,
             A    => A_test,
             Bin  => B_test,
             Sum  => Sum_test,
@@ -61,14 +58,11 @@ begin
     result_tb: process
     begin
         -- Apply reset initially
-        rst_test <= '1';
         A_test   <= (others => '0');
         B_test   <= (others => '0');
         cIn_test <= '0';
         wait for 20 ns;
-        
-        rst_test <= '0';
-        wait for 10 ns;
+       
 
         A_test   <= x"0000000000000000";
         B_test   <= x"0000000000000000";
