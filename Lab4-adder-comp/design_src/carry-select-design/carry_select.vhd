@@ -7,7 +7,7 @@ entity carry_select_16bit is
         BLOCK_SIZE : integer := 4  -- How many full adders in each block
     );
     Port(
-        clk  : in  std_logic;
+        -- clk  : in  std_logic;
         A    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
         Bin  : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
         cIn  : in  std_logic;
@@ -39,18 +39,18 @@ architecture Structural of carry_select_16bit is
 
 begin
 
-    -- Input Register Process
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            A_reg   <= A;
-            Bin_reg <= Bin;
-            cIn_reg <= cIn;
-        end if;
-    end process;
+    -- -- Input Register Process
+    -- process(clk)
+    -- begin
+    --     if rising_edge(clk) then
+    --         A_reg   <= A;
+    --         Bin_reg <= Bin;
+    --         cIn_reg <= cIn;
+    --     end if;
+    -- end process;
 
     -- Carry-Select Adder Logic (now driven by registered inputs)
-    c_chain(0) <= cIn_reg;
+    c_chain(0) <= cIn;
 
     block0_gen: block
         signal c_b0 : std_logic_vector(BLOCK_SIZE downto 0);
@@ -95,8 +95,8 @@ begin
             constant idx : integer := base + i;
         begin
             fa_bot: full_adder port map (
-                FA_in1    => A_reg(idx),
-                FA_in2    => Bin_reg(idx),
+                FA_in1    => A(idx),
+                FA_in2    => Bin(idx),
                 Carry_in  => c1_temp(i),
                 Sum       => s1_vec(i),
                 Carry_out => c1_temp(i+1)
@@ -113,14 +113,16 @@ begin
     end generate;
 
     Cout_comb <= c_chain(DATA_W);
+    Sum  <= Sum_comb;
+    Cout <= Cout_comb;
 
-    -- Output Register Process
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            Sum  <= Sum_comb;
-            Cout <= Cout_comb;
-        end if;
-    end process;
+    -- -- Output Register Process
+    -- process(clk)
+    -- begin
+    --     if rising_edge(clk) then
+    --         Sum  <= Sum_comb;
+    --         Cout <= Cout_comb;
+    --     end if;
+    -- end process;
 
 end Structural;
