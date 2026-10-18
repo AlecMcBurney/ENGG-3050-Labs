@@ -1,17 +1,18 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity sixbitadder is
+entity rc_adder is
     generic(
         data_width : integer := 16
     );
-    Port ( A, B   : in  std_logic_vector(data_width - 1 downto 0);
-           Carry  : out std_logic;
-           Sum : out std_logic_vector(data_width - 1 downto 0)
+    Port ( 
+        A, B   : in  std_logic_vector(data_width - 1 downto 0);
+        Carry  : out std_logic;
+        Sum : out std_logic_vector(data_width - 1 downto 0)
     );
-end sixbitadder;
+end rc_adder;
 
-architecture Behavioral of sixbitadder is
+architecture Behavioral of rc_adder is
     component full_adder is
         Port ( 
             FA_in1, FA_in2, Carry_in : in  STD_LOGIC;

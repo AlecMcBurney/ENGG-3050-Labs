@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
- 
+
 entity half_adder is
     Port ( HA_in1 : in  STD_LOGIC;
            HA_in2 : in  STD_LOGIC;

@@ -6,28 +6,45 @@ entity rc_adder_tb is
 end rc_adder_tb;
 
 architecture Behavioral of rc_adder_tb is
-component sixbitadder is
-    generic(
-        data_width : integer := 16
-    );
-    Port ( A, B   : in  std_logic_vector(data_width - 1 downto 0);
-           Carry  : out std_logic;
-           Sum : out std_logic_vector(data_width - 1 downto 0)
+component rc_16b is
+    Port ( 
+        A16, B16   : in  std_logic_vector(15 downto 0);
+        clk  : in  std_logic;
+        Carry  : out std_logic;
+        Sum16 : out std_logic_vector(15 downto 0)
     );
 end component;
 
-constant data_width : integer := 16;
-constant data_width_32 : integer := 32;
-constant data_width_64 : integer := 64;
+component rc_32b is
+    Port ( 
+        A32, B32   : in  std_logic_vector(31 downto 0);
+        clk  : in  std_logic;
+        Carry  : out std_logic;
+        Sum32 : out std_logic_vector(31 downto 0)
+    );
+end component;
 
-signal A16, B16, Res16 : std_logic_vector(data_width-1 downto 0);
-signal A32, B32, Res32 : std_logic_vector(data_width_32-1 downto 0);
-signal A64, B64, Res64 : std_logic_vector(data_width_64-1 downto 0);
+component rc_64b is
+    Port ( 
+        A64, B64   : in  std_logic_vector(63 downto 0);
+        clk  : in  std_logic;   
+        Carry  : out std_logic;
+        Sum64 : out std_logic_vector(63 downto 0)
+    );
+end component;
+
+signal A16, B16, Res16 : std_logic_vector(15 downto 0);
+signal A32, B32, Res32 : std_logic_vector(31 downto 0);
+signal A64, B64, Res64 : std_logic_vector(63 downto 0);
 signal Cout16 : std_logic;
 signal Cout32 : std_logic;
 signal Cout64 : std_logic;
+signal clk_test : std_logic := '0';
 
 shared variable pass_count, fail_count, total_count : integer := 0;
+
+-- Clock period constant (e.g., 10 ns -> 100 MHz)
+constant CLK_PERIOD : time := 10 ns;
 
 procedure check_result(
     constant actual     : in std_logic_vector;
@@ -51,37 +68,40 @@ begin
 end procedure;
 
 begin
-    uut_16: sixbitadder
-        generic map(
-            data_width => data_width
-        )
+    -- Clock Generation Process
+    clk_process: process
+    begin
+        clk_test <= '0';
+        wait for CLK_PERIOD / 2;
+        clk_test <= '1';
+        wait for CLK_PERIOD / 2;
+    end process;
+
+    uut_16: rc_16b
         port map(
-            A => A16,
-            B => B16,
+            A16 => A16,
+            B16 => B16,
+            clk => clk_test,
             Carry => Cout16,
-            Sum => Res16
+            Sum16 => Res16
         );
 
-    uut_32: sixbitadder
-        generic map(
-            data_width => data_width_32
-        )
+    uut_32: rc_32b
         port map(
-            A => A32,
-            B => B32,
+            A32 => A32,
+            B32 => B32,
+            clk => clk_test,
             Carry => Cout32,
-            Sum => Res32
+            Sum32 => Res32
         );
 
-    uut_64: sixbitadder
-        generic map(
-            data_width => data_width_64
-        )
+    uut_64: rc_64b
         port map(
-            A => A64,
-            B => B64,
+            A64 => A64,
+            B64 => B64,
+            clk => clk_test,
             Carry => Cout64,
-            Sum => Res64
+            Sum64 => Res64
         );
 
     test_16: process
