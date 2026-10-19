@@ -1,22 +1,21 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity carry_select_16bit is
+entity cs_adder is
     Generic(
         DATA_W     : integer := 16; -- how many blocks
         BLOCK_SIZE : integer := 4  -- How many full adders in each block
     );
     Port(
-        -- clk  : in  std_logic;
         A    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
         Bin  : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
         cIn  : in  std_logic;
         Sum  : out std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
         Cout : out std_logic
     );
-end carry_select_16bit;
+end cs_adder;
 
-architecture Structural of carry_select_16bit is
+architecture Structural of cs_adder is
     component full_adder is
         Port (
             FA_in1    : in  STD_LOGIC;
@@ -28,9 +27,9 @@ architecture Structural of carry_select_16bit is
     end component;
 
     -- Registered input signals
-    signal A_reg    : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
-    signal Bin_reg  : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
-    signal cIn_reg  : std_logic;
+    --signal A_reg    : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+    --signal Bin_reg  : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+    -- signal cIn_reg  : std_logic;
 
     -- Combinational intermediate signals
     signal c_chain   : std_logic_vector(DATA_W downto 0);
@@ -39,17 +38,6 @@ architecture Structural of carry_select_16bit is
 
 begin
 
-    -- -- Input Register Process
-    -- process(clk)
-    -- begin
-    --     if rising_edge(clk) then
-    --         A_reg   <= A;
-    --         Bin_reg <= Bin;
-    --         cIn_reg <= cIn;
-    --     end if;
-    -- end process;
-
-    -- Carry-Select Adder Logic (now driven by registered inputs)
     c_chain(0) <= cIn;
 
     block0_gen: block
@@ -59,8 +47,8 @@ begin
 
         gen_b0_FAs: for i in 0 to BLOCK_SIZE-1 generate
             fa_inst: full_adder port map (
-                FA_in1    => A_reg(i),
-                FA_in2    => Bin_reg(i),
+                FA_in1    => A(i),
+                FA_in2    => Bin(i),
                 Carry_in  => c_b0(i),
                 Sum       => Sum_comb(i),
                 Carry_out => c_b0(i+1)
@@ -82,8 +70,8 @@ begin
             constant idx : integer := base + i;
         begin
             fa_top: full_adder port map (
-                FA_in1    => A_reg(idx),
-                FA_in2    => Bin_reg(idx),
+                FA_in1    => A(idx),
+                FA_in2    => Bin(idx),
                 Carry_in  => c0_temp(i),
                 Sum       => s0_vec(i),
                 Carry_out => c0_temp(i+1)
@@ -116,13 +104,5 @@ begin
     Sum  <= Sum_comb;
     Cout <= Cout_comb;
 
-    -- -- Output Register Process
-    -- process(clk)
-    -- begin
-    --     if rising_edge(clk) then
-    --         Sum  <= Sum_comb;
-    --         Cout <= Cout_comb;
-    --     end if;
-    -- end process;
 
 end Structural;

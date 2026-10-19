@@ -1,59 +1,78 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity cla_16b is
-    Port ( 
-        A16, B16   : in  std_logic_vector(15 downto 0);
-        clk  : in  std_logic;
-        Carry  : out std_logic;
-        Sum16 : out std_logic_vector(15 downto 0)
+entity cs_adder_16bit is
+    Generic(
+        DATA_W     : integer := 4; -- how many blocks
+        BLOCK_SIZE : integer := 4  -- How many full adders in each block
     );
-end cla_16b;
+    Port(
+        clk  : in  std_logic;
+        A    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+        Bin  : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+        cIn  : in  std_logic;
+        Sum  : out std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+        Cout : out std_logic
+    );
+end cs_adder_16bit;
 
-architecture Behavioral of cla_16b is
-    component carry_lookahead_adder is
+architecture Structural of cs_adder_16bit is
+    component cs_adder is
         generic(
-            data_width : integer := 16
+            DATA_W     : integer := 4; -- how many blocks
+            BLOCK_SIZE : integer := 4  -- How many full adders in each block
         );
-        Port ( A, B   : in  std_logic_vector(data_width - 1 downto 0);
-            Carry  : out std_logic;
-            Sum : out std_logic_vector(data_width - 1 downto 0)
+        Port (
+            A    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+            Bin    : in  std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+            cIn  : in  std_logic;
+            Sum       : out std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+            Cout : out std_logic
         );
     end component;
 
-    -- Registered signals
-    signal A_reg, B_reg, Sum_reg, sum_tmp    : std_logic_vector(15 downto 0);
-    signal Carry_reg, carry_tmp  : std_logic;
+    -- Registered input signals
+    signal A_reg    : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+    signal Bin_reg  : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+    signal cIn_reg  : std_logic;
+
+    -- Combinational intermediate signals
+    signal c_chain   : std_logic_vector(DATA_W downto 0);
+    signal Sum_comb  : std_logic_vector(DATA_W * BLOCK_SIZE - 1 downto 0);
+    signal Cout_comb : std_logic;
 
 begin
+
     -- Input Register Process
     process(clk)
     begin
         if rising_edge(clk) then
-            A_reg   <= A16;
-            B_reg <= B16;
+            A_reg   <= A;
+            Bin_reg <= Bin;
+            cIn_reg <= cIn;
         end if;
     end process;
-    
-    uut_16: carry_lookahead_adder
+
+    uut: cs_adder
         generic map(
-            data_width => 16
+            DATA_W     => DATA_W,
+            BLOCK_SIZE => BLOCK_SIZE
         )
-        Port map( 
-            A => A_reg,
-            B => B_reg,
-            Carry => carry_tmp,
-            Sum => sum_tmp
+        port map(
+            A    => A_reg,
+            Bin  => Bin_reg,
+            cIn  => cIn_reg,
+            Sum  => Sum_comb,
+            Cout => Cout_comb
         );
-    
+
     -- Output Register Process
     process(clk)
     begin
         if rising_edge(clk) then
-            Sum_reg  <= sum_tmp;
-            Carry_reg <= carry_tmp;
+            Sum  <= Sum_comb;
+            Cout <= Cout_comb;
         end if;
     end process;
-    Sum16 <= Sum_reg;
-    Carry <= Carry_reg;
-end Behavioral;
+
+end Structural;

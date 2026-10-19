@@ -2,11 +2,11 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity result_tb is
-end result_tb;
+entity carry_select_64bit_tb is
+end carry_select_64bit_tb;
 
-architecture Behavioral of result_tb is
-    component carry_select_16bit
+architecture Behavioral of carry_select_64bit_tb is
+    component cs_adder_64bit
         Generic(
             DATA_W     : integer := 16;
             BLOCK_SIZE : integer := 4
@@ -29,13 +29,15 @@ architecture Behavioral of result_tb is
     signal Sum_test   : std_logic_vector(63 downto 0);
     signal Cout_test  : std_logic;
 
-    -- Clock period constant (e.g., 10 ns -> 100 MHz)
     constant CLK_PERIOD : time := 10 ns;
 
 begin
-
-    -- Instantiate the Unit Under Test (UUT)
-    uut: carry_select_16bit
+    --test
+    uut: cs_adder_64bit
+        generic map(
+            DATA_W     => 16,
+            BLOCK_SIZE => 4
+        )
         port map(
             clk  => clk_test,
             A    => A_test,
@@ -45,7 +47,7 @@ begin
             Cout => Cout_test
         );
 
-    -- Clock Generation Process
+
     clk_process: process
     begin
         clk_test <= '0';
@@ -54,51 +56,29 @@ begin
         wait for CLK_PERIOD / 2;
     end process;
 
-    -- Stimulus Process
-    result_tb: process
-    begin
-        -- Apply reset initially
-        A_test   <= (others => '0');
-        B_test   <= (others => '0');
-        cIn_test <= '0';
-        wait for 20 ns;
-       
 
-        A_test   <= x"0000000000000000";
+    stimulus_process: process
+    begin
+        A_test   <= x"0000000000000001";
         B_test   <= x"0000000000000000";
-        cIn_test <= '0';
         wait for 100 ns;
 
-        A_test   <= x"FFFFFFFFFFFFFFFF";
-        B_test   <= x"FFFFFFFFFFFFFFFF";
-        cIn_test <= '0';
+        A_test   <= x"0000000000000003";
+        B_test   <= x"0000000000000005";
         wait for 100 ns;
         
-        A_test   <= x"FFFFFFFFFFFFFFFF";
-        B_test   <= x"FFFFFFFFFFFFFFFF";
-        cIn_test <= '1';
-        wait for 100 ns;
-
-        A_test   <= x"AAAAAAAAAAAAAAAA";
-        B_test   <= x"1111111111111111";
-        cIn_test <= '0';
-        wait for 100 ns;
-
-        A_test   <= x"AAAAAAAAAAAAAAAA";
-        B_test   <= x"BBBBBBBBBBBBBBBB";
-        cIn_test <= '0';
+        A_test   <= x"7FFFFFFFFFFFFFFF";
+        B_test   <= x"0000000000000001";
         wait for 100 ns;
 
         A_test   <= x"FFFFFFFFFFFFFFFF";
         B_test   <= x"0000000000000000";
-        cIn_test <= '1';
         wait for 100 ns;
 
-        A_test   <= x"FFFFFFFFFFFFFFFF";
-        B_test   <= x"1000000000000000";
-        cIn_test <= '0';
+        A_test   <= x"4000000000000000";
+        B_test   <= x"4000000000000000";
         wait for 100 ns;
 
         wait;
-    end process result_tb;
+    end process stimulus_process;
 end Behavioral;
