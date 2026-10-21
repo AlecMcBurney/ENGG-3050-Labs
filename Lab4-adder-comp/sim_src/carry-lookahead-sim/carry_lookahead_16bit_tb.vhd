@@ -1,57 +1,82 @@
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
 
 entity cla_16b_tb is
 end cla_16b_tb;
 
 architecture Behavioral of cla_16b_tb is
-    component cla_16b is
-        Port (
-            clk : in std_logic;
-            addr_16 : in std_logic_vector(2 downto 0)
-        );
-    end component;
 
-    -- Testbench signals
-    signal clk_test   : std_logic := '0';
-    signal addr_16    : std_logic_vector(2 downto 0) := "000";
+component cla_16b is
+    Port (
+        A16, B16 : in std_logic_vector(15 downto 0);
+        clk : in std_logic;
+        Carry : out std_logic;
+        Sum16 : out std_logic_vector(15 downto 0)
+    );
+end component;
 
-    -- Clock period constant (e.g., 10 ns -> 100 MHz)
-    constant CLK_PERIOD : time := 10 ns;
+constant CLK_PERIOD : time := 10 ns;
+
+signal A16, B16, Sum16 : std_logic_vector(15 downto 0);
+signal Carry : std_logic;
+signal clk_test : std_logic := '0';
 
 begin
 
-    -- Instantiate the Unit Under Test (UUT)
-    uut: cla_16b
+    uut_16: cla_16b
         port map(
-            clk  => clk_test,
-            addr_16 => addr_16
+            A16 => A16,
+            B16 => B16,
+            clk => clk_test,
+            Carry => Carry,
+            Sum16 => Sum16
         );
 
-    -- Clock Generation Process
     clk_process: process
     begin
         clk_test <= '0';
         wait for CLK_PERIOD / 2;
         clk_test <= '1';
         wait for CLK_PERIOD / 2;
-        case addr_16 is				
-            when "000" => addr_16 <= "001";
-            when "001" => addr_16 <= "010";
-            when "010" => addr_16 <= "011";
-            when "011" => addr_16 <= "100";
-            when "100" => addr_16 <= "101";
-            when "101" => addr_16 <= "110";
-            when "110" => addr_16 <= "111";
-            when "111" => addr_16 <= "000";
-            when others => addr_16 <= "000";
-        end case;
     end process;
 
-    -- Stimulus Process
-    result_tb: process
+    test_16: process
     begin
+
+        A16 <= X"0001";
+        B16 <= X"0000";
+        wait for 2 * CLK_PERIOD;
+        assert (Sum16 = X"0001" and Carry = '0')
+            report "Test 1 failed" severity error;
+
+        A16 <= X"0003";
+        B16 <= X"0005";
+        wait for 2 * CLK_PERIOD;
+        assert (Sum16 = X"0008" and Carry = '0')
+            report "Test 2 failed" severity error;
+
+        A16 <= X"7FFF";
+        B16 <= X"0001";
+        wait for 2 * CLK_PERIOD;
+        assert (Sum16 = X"8000" and Carry = '0')
+            report "Test 3 failed" severity error;
+
+        A16 <= X"FFFF";
+        B16 <= X"0001";
+        wait for 2 * CLK_PERIOD;
+        assert (Sum16 = X"0000" and Carry = '1')
+            report "Test 4 failed" severity error;
+
+        A16 <= X"8000";
+        B16 <= X"8000";
+        wait for 2 * CLK_PERIOD;
+        assert (Sum16 = X"0000" and Carry = '1')
+            report "Test 5 failed" severity error;
+
+        report "16-bit CLA tests completed" severity note;
         wait;
-    end process result_tb;
+
+    end process test_16;
+
 end Behavioral;
