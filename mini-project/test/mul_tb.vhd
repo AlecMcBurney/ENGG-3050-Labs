@@ -11,8 +11,18 @@ architecture Behavioral of mul_tb is
     signal Mul_In1 : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
     signal Mul_In2 : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
     signal Product : std_logic_vector(2*DATA_WIDTH-1 downto 0);
+
+    component multiplier_nb is
+        generic(
+            data_width : integer := 6
+        );
+        Port ( 
+            Mul_In1 : in  std_logic_vector(data_width-1 downto 0);
+            Mul_In2 : in  std_logic_vector(data_width-1 downto 0);
+            Product : out  std_logic_vector(2*data_width-1 downto 0));
+    end component;
 begin
-    uut: entity work.multiplier_6b
+    uut: multiplier_nb
         generic map(
             data_width => DATA_WIDTH
         )
@@ -44,6 +54,7 @@ begin
                             severity note;
                     end if;
                 end if;
+                wait for 10 ns;
             end loop;
         end loop;
 
