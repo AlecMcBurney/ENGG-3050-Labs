@@ -3,22 +3,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 use work.matrix_pkg.all;
 
 entity matrix_mux_3x3 is
-    generic(
-        DATA_WIDTH : positive := 6;
-        OUTPUT_WIDTH : positive := 14
-        -- NUM_ROWS : positive := 3;
-        -- NUM_COLS : positive := 3
-	);
     Port (	
-        M0, M1 : in input_matrix_t
-            (0 to 2, 0 to 2)(DATA_WIDTH - 1 downto 0);
-        M2 : in output_matrix_t
-            (0 to 2, 0 to 2)(OUTPUT_WIDTH - 1 downto 0);
+        M0, M1 : in input_3x3_6b_matrix;
+        M2 : in output_3x3_14b_matrix;
         
         row_sel, col_sel : in  std_logic_vector(1 downto 0);
         
-        M0_out, M1_out : out std_logic_vector(DATA_WIDTH - 1 downto 0);
-        M2_out : out std_logic_vector(OUTPUT_WIDTH - 1 downto 0)
+        M0_out, M1_out : out std_logic_vector(5 downto 0);
+        M2_out : out std_logic_vector(13 downto 0)
     );
 end matrix_mux_3x3;
 
